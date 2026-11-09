@@ -29,5 +29,46 @@ public class Movie {
         this.showTimes = new ShowTime[maximumShowTimes];
         this.showTimeCount = 0;
     }
+    public String getTitle() {
+        return title;
+    }
 
+    public String getGenre() {
+        return genre;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public int getShowTimeCount() {
+        return showTimeCount;
+    }
+
+    public ShowTime getShowTimeAt(int index) {
+        if (index < 0 || index >= showTimeCount) {
+            throw new IndexOutOfBoundsException("Showtime index is outside this movie's schedule.");
+        }
+        return showTimes[index];
+    }
+    
+    public ShowTime[] getAvailableShowTimes() {
+        return Arrays.copyOf(showTimes, showTimeCount);
+    }
+
+   
+    public boolean addShowTime(ShowTime showTime) {
+        if (showTime == null || showTimeCount == showTimes.length) {
+            return false;
+        }
+        showTimes[showTimeCount] = showTime;
+        showTimeCount++;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return title + " (" + genre + ", " + durationMinutes + " min)";
+    }
 }
+
