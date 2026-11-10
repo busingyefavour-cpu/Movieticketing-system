@@ -13,7 +13,7 @@
   - LUBWAMA JAMAL
 - **Group leader:** BUSINGYE FAVOUR BWESIGYE
 - **Session:** Group 27 Day class
-- **GitHub repository:** https://github.com/NassuunaVictorious/Movie-ticketing-system
+- **GitHub repository:** https://github.com/busingyefavour-cpu/Movieticketing-system.git
 
 ## 2. Purpose and scope
 
