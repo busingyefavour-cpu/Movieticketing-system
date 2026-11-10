@@ -18,3 +18,14 @@ javac -d out src/com/movieticket/*.java
 java -cp out com.movieticket.Main
 ```
 
+Main
+  → creates movies, showtimes, and seats
+  → creates TicketingSystem
+  → opens BookingFrame
+      → user selects a movie
+      → available showtimes appear
+      → user selects a showtime
+      → seats appear
+      → user selects available seats
+      → TicketingSystem validates and records the booking
+      → BookingFrame displays the confirmation
