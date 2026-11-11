@@ -20,7 +20,7 @@ import java.util.List;
 public class BookingFrame extends JFrame {
     private final TicketingSystem ticketingSystem;
     private final JComboBox<Movie> movieDropdown;
-    private final JComboBox<ShowTime> showtimeDropdown;
+    private final JComboBox<Showtime> showtimeDropdown;
     private final JPanel seatGridPanel;
     private final JButton bookButton;
     private final JLabel statusLabel;
@@ -74,7 +74,7 @@ public class BookingFrame extends JFrame {
         Movie selectedMovie = (Movie) movieDropdown.getSelectedItem();
         showtimeDropdown.removeAllItems();
         if (selectedMovie != null) {
-            for (ShowTime showTime : selectedMovie.getAvailableShowTimes()) {
+            for (Showtime showTime : selectedMovie.getAvailableShowTimes()) {
                 showtimeDropdown.addItem(showTime);
             }
         }
@@ -86,7 +86,7 @@ public class BookingFrame extends JFrame {
         selectedSeats.clear();
         bookButton.setEnabled(false);
 
-        ShowTime selectedShowtime = (ShowTime) showtimeDropdown.getSelectedItem();
+        Showtime selectedShowtime = (Showtime) showtimeDropdown.getSelectedItem();
         if (selectedShowtime != null) {
             int columns = 4;
             int rows = (int) Math.ceil((double) selectedShowtime.getSeatCount() / columns);
@@ -121,7 +121,7 @@ public class BookingFrame extends JFrame {
     }
 
     private void updateStatus() {
-        ShowTime selectedShowtime = (ShowTime) showtimeDropdown.getSelectedItem();
+        Showtime selectedShowtime = (Showtime) showtimeDropdown.getSelectedItem();
         if (selectedShowtime == null) {
             statusLabel.setText("Please select a movie and showtime to begin.");
             bookButton.setEnabled(false);
@@ -137,7 +137,7 @@ public class BookingFrame extends JFrame {
 
     private void bookSelectedSeats() {
         Movie movie = (Movie) movieDropdown.getSelectedItem();
-        ShowTime showTime = (ShowTime) showtimeDropdown.getSelectedItem();
+        Showtime showTime = (Showtime) showtimeDropdown.getSelectedItem();
         Seat[] seats = selectedSeats.toArray(new Seat[0]);
 
         try {
