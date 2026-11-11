@@ -1,14 +1,14 @@
-
+package com.movieticket;
 
 /** Records seats reserved for one movie showtime. */
 public class Booking {
     private final String bookingNumber;
     private final Movie movie;
-    private final ShowTime showTime;
+    private final Showtime showTime;
     private final Seat[] seats;
     private final int totalPrice;
 
-    public Booking(String bookingNumber, Movie movie, ShowTime showTime, Seat[] selectedSeats) {
+    public Booking(String bookingNumber, Movie movie, Showtime showTime, Seat[] selectedSeats) {
         if (bookingNumber == null || bookingNumber.isBlank()) {
             throw new IllegalArgumentException("Booking number cannot be blank.");
         }
@@ -42,7 +42,7 @@ public class Booking {
         return movie;
     }
 
-    public ShowTime getShowTime() {
+    public Showtime getShowTime() {
         return showTime;
     }
 
