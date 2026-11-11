@@ -1,6 +1,7 @@
 package com.movieticket;
 
 import javax.swing.SwingUtilities;
+import java.time.LocalDate;
 
 /** Creates the sample catalogue and starts the application. */
 public class Main {
@@ -10,12 +11,16 @@ public class Main {
     }
 
     private static Movie[] createCatalogue() {
-        Movie firstMovie = new Movie("Black Panther: Wakanda Forever", "Action", 161, 2);
-        firstMovie.addShowTime(new Showtime("2026-11-10 18:00", 20000, 20));
-        firstMovie.addShowTime(new Showtime("2026-11-10 21:00", 25000, 20));
+        LocalDate firstDay = LocalDate.now().plusDays(1);
+        LocalDate secondDay = firstDay.plusDays(1);
+
+        Movie firstMovie = new Movie("Black Panther: Wakanda Forever", "Action", 161, 3);
+        firstMovie.addShowTime(new Showtime(firstDay + " 18:00", "Room 1", 20000, 20));
+        firstMovie.addShowTime(new Showtime(firstDay + " 21:00", "Room 1", 25000, 20));
+        firstMovie.addShowTime(new Showtime(secondDay + " 18:00", "Room 1", 20000, 20));
 
         Movie secondMovie = new Movie("Spider-Man: Beyond the Spider-Verse", "Animation", 140, 1);
-        secondMovie.addShowTime(new Showtime("2026-11-11 15:00", 15000, 16));
+        secondMovie.addShowTime(new Showtime(firstDay + " 18:00", "Room 2", 15000, 16));
 
         return new Movie[]{firstMovie, secondMovie};
     }

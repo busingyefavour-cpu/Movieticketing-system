@@ -1,14 +1,34 @@
 package com.movieticket;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 /** Represents one screening and the seats available for that screening. */
 public class Showtime {
     private final String dateTime;
+    private final LocalDate date;
+    private final String roomName;
     private final int ticketPrice;
     private final Seat[] seats;
 
     public Showtime(String dateTime, int ticketPrice, int numberOfSeats) {
+        this(dateTime, "Room 1", ticketPrice, numberOfSeats);
+    }
+
+    public Showtime(String dateTime, String roomName, int ticketPrice, int numberOfSeats) {
         if (dateTime == null || dateTime.isBlank()) {
             throw new IllegalArgumentException("Showtime cannot be blank.");
+        }
+        if (roomName == null || roomName.isBlank()) {
+            throw new IllegalArgumentException("Room name cannot be blank.");
+        }
+        if (dateTime.length() < 10) {
+            throw new IllegalArgumentException("Showtime must start with a date in yyyy-MM-dd format.");
+        }
+        try {
+            this.date = LocalDate.parse(dateTime.substring(0, 10));
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Showtime must start with a valid date in yyyy-MM-dd format.", exception);
         }
         if (ticketPrice < 0) {
             throw new IllegalArgumentException("Ticket price cannot be negative.");
@@ -18,6 +38,7 @@ public class Showtime {
         }
 
         this.dateTime = dateTime;
+        this.roomName = roomName;
         this.ticketPrice = ticketPrice;
         this.seats = new Seat[numberOfSeats];
 
@@ -28,6 +49,14 @@ public class Showtime {
 
     public String getDateTime() {
         return dateTime;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getRoomName() {
+        return roomName;
     }
 
     public int getTicketPrice() {
@@ -68,6 +97,6 @@ public class Showtime {
 
     @Override
     public String toString() {
-        return dateTime + " - Ugx " + ticketPrice;
+        return dateTime + " - " + roomName + " - Ugx " + ticketPrice;
     }
 }

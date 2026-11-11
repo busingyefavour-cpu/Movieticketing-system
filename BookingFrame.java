@@ -12,12 +12,19 @@ import javax.swing.JToggleButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Displays the movie selection, seat map, and booking summary. */
 public class BookingFrame extends JFrame {
+    private static final Color BACKGROUND_COLOR = new Color(245, 247, 250);
+    private static final Color PRIMARY_COLOR = new Color(35, 76, 120);
+    private static final Color AVAILABLE_COLOR = new Color(220, 240, 228);
+    private static final Color SELECTED_COLOR = new Color(190, 218, 247);
+    private static final Color BOOKED_COLOR = new Color(232, 234, 237);
+
     private final TicketingSystem ticketingSystem;
     private final JComboBox<Movie> movieDropdown;
     private final JComboBox<Showtime> showtimeDropdown;
@@ -43,20 +50,47 @@ public class BookingFrame extends JFrame {
     }
 
     private void setupUI() {
-        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(BACKGROUND_COLOR);
+        setLayout(new BorderLayout(12, 12));
 
-        JPanel topPanel = new JPanel(new FlowLayout());
-        topPanel.add(new JLabel("Select Movie:"));
-        topPanel.add(movieDropdown);
-        topPanel.add(new JLabel("Select Showtime:"));
-        topPanel.add(showtimeDropdown);
+        JPanel topPanel = new JPanel(new BorderLayout(8, 8));
+        topPanel.setBackground(BACKGROUND_COLOR);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 4, 16));
+
+        JLabel heading = new JLabel("MOVIE TICKET BOOKING", JLabel.CENTER);
+        heading.setFont(new Font("SansSerif", Font.BOLD, 20));
+        heading.setForeground(PRIMARY_COLOR);
+        topPanel.add(heading, BorderLayout.NORTH);
+
+        JPanel selectionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 8));
+        selectionPanel.setBackground(BACKGROUND_COLOR);
+        selectionPanel.add(new JLabel("Movie"));
+        selectionPanel.add(movieDropdown);
+        selectionPanel.add(new JLabel("Showtime"));
+        selectionPanel.add(showtimeDropdown);
+        topPanel.add(selectionPanel, BorderLayout.CENTER);
+        movieDropdown.setPreferredSize(new java.awt.Dimension(250, 30));
+        showtimeDropdown.setPreferredSize(new java.awt.Dimension(200, 30));
         add(topPanel, BorderLayout.NORTH);
 
-        add(new JScrollPane(seatGridPanel), BorderLayout.CENTER);
+        seatGridPanel.setBackground(Color.WHITE);
+        seatGridPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Choose your seats"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        JScrollPane seatScrollPane = new JScrollPane(seatGridPanel);
+        seatScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 16));
+        seatScrollPane.getViewport().setBackground(Color.WHITE);
+        add(seatScrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        statusLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        bottomPanel.setBackground(BACKGROUND_COLOR);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(4, 16, 16, 16));
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 8));
         bookButton.setEnabled(false);
+        bookButton.setBackground(PRIMARY_COLOR);
+        bookButton.setForeground(Color.WHITE);
+        bookButton.setFocusPainted(false);
+        bookButton.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 16));
         bookButton.addActionListener(event -> bookSelectedSeats());
         bottomPanel.add(statusLabel, BorderLayout.CENTER);
         bottomPanel.add(bookButton, BorderLayout.EAST);
@@ -90,23 +124,26 @@ public class BookingFrame extends JFrame {
         if (selectedShowtime != null) {
             int columns = 4;
             int rows = (int) Math.ceil((double) selectedShowtime.getSeatCount() / columns);
-            seatGridPanel.setLayout(new GridLayout(rows, columns, 5, 5));
-            seatGridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            seatGridPanel.setLayout(new GridLayout(rows, columns, 8, 8));
 
             for (int index = 0; index < selectedShowtime.getSeatCount(); index++) {
                 Seat seat = selectedShowtime.getSeatAt(index);
                 JToggleButton seatButton = new JToggleButton(seat.getSeatNumber());
+                seatButton.setOpaque(true);
+                seatButton.setFocusPainted(false);
                 if (seat.isBooked()) {
                     seatButton.setEnabled(false);
-                    seatButton.setText(seat.getSeatNumber() + " (X)");
-                    seatButton.setBackground(Color.RED);
+                    seatButton.setText(seat.getSeatNumber() + " (Booked)");
+                    seatButton.setBackground(BOOKED_COLOR);
                 } else {
-                    seatButton.setBackground(Color.GREEN);
+                    seatButton.setBackground(AVAILABLE_COLOR);
                     seatButton.addActionListener(event -> {
                         if (seatButton.isSelected()) {
                             selectedSeats.add(seat);
+                            seatButton.setBackground(SELECTED_COLOR);
                         } else {
                             selectedSeats.remove(seat);
+                            seatButton.setBackground(AVAILABLE_COLOR);
                         }
                         updateStatus();
                     });
@@ -163,6 +200,7 @@ public class BookingFrame extends JFrame {
                         + "Reference: " + booking.getBookingNumber() + "\n"
                         + "Movie: " + booking.getMovie().getTitle() + "\n"
                         + "Showtime: " + booking.getShowTime().getDateTime() + "\n"
+                        + "Room: " + booking.getShowTime().getRoomName() + "\n"
                         + "Seats: " + seatNumbers + "\n"
                         + "Total Paid: Ugx " + booking.getTotalPrice(),
                 "Success", JOptionPane.INFORMATION_MESSAGE);

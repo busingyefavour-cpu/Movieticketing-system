@@ -65,15 +65,16 @@ This file provides the basic seat state that Showtime, BookingFrame, and Ticketi
 A Showtime represents a scheduled showing of a movie.
 
 dateTime stores when it starts.
+roomName identifies the screening room.
 ticketPrice stores the cost of one ticket.
 seats stores the seats available for this screening.
-The constructor checks that the date/time is not blank, the price is not negative, and there is at least one seat. It then creates the requested number of Seat objects, numbered S1, S2, and so on.
+The constructor checks that the date/time and room name are valid, the price is not negative, and there is at least one seat. It then creates the requested number of Seat objects, numbered S1, S2, and so on.
 getTotalPrice(seatCount) multiplies the ticket price by the number of seats. It rejects a seat count below one.
 getSeatCount() and getSeatAt(index) provide access to the seats.
 getAllSeats() returns a copy of the seat array, rather than exposing the original array.
 getAvailableSeatCount() loops through the seats and counts those not yet booked.
 toString() formats the screening time and price for display.
-Each Showtime owns its own seat objects, so booking a seat for one screening does not book the same-numbered seat at another screening.
+Each screening has its own seat objects. A booked seat stays booked for that screening, but is available in another showtime—even in the same room.
 
 
 3. Movie.java — a movie and its schedule
@@ -140,7 +141,7 @@ The frame handles display and interaction. It asks TicketingSystem to enforce bo
 Main assembles the starting data and launches the interface.
 
 BOOKING_CAPACITY sets the maximum number of bookings kept during this run.
-createCatalogue() creates sample Movie objects, adds Showtime objects to them, and returns the movie array. Each showtime creates its own seats.
+createCatalogue() creates sample Movie objects and schedules two movies at the same time in different rooms, plus multiple showtimes in one room. Each showtime creates its own seats.
 main() schedules startup with SwingUtilities.invokeLater(...), which runs Swing UI setup on its event-dispatch thread. Inside that task it creates the TicketingSystem and displays a BookingFrame.
 
 
