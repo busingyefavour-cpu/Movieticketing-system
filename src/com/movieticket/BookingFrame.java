@@ -1,283 +1,170 @@
-
 package com.movieticket;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.UUID;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
+/** Displays the movie selection, seat map, and booking summary. */
 public class BookingFrame extends JFrame {
+    private final TicketingSystem ticketingSystem;
+    private final JComboBox<Movie> movieDropdown;
+    private final JComboBox<Showtime> showtimeDropdown;
+    private final JPanel seatGridPanel;
+    private final JButton bookButton;
+    private final JLabel statusLabel;
+    private final List<Seat> selectedSeats;
 
-    private Movie[] movies;
-    private Booking[] bookings = new Booking[100];
-    private int bookingCount = 0;
+    public BookingFrame(TicketingSystem ticketingSystem) {
+        super("Movie Ticket Booking System");
+        this.ticketingSystem = ticketingSystem;
+        this.movieDropdown = new JComboBox<>();
+        this.showtimeDropdown = new JComboBox<>();
+        this.seatGridPanel = new JPanel();
+        this.bookButton = new JButton("Book Selected Seats");
+        this.statusLabel = new JLabel("Please select a movie and showtime to begin.");
+        this.selectedSeats = new ArrayList<>();
 
-    private JComboBox<Movie> movieBox;
-    private JComboBox<ShowTime> showTimeBox;
-    private JPanel seatPanel;
-    private JLabel priceLabel;
-
-    private JCheckBox[] seatChecks;
-
-    public BookingFrame(Movie[] movies) {
-
-        this.movies = movies;
-
-        setTitle("Movie Ticket Booking System");
-        setSize(650, 550);
+        setupUI();
+        setSize(700, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+    }
 
+    private void setupUI() {
         setLayout(new BorderLayout(10, 10));
 
-        JLabel heading = new JLabel(
-            "MOVIE TICKET BOOKING SYSTEM",
-            JLabel.CENTER
-        );
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(new JLabel("Select Movie:"));
+        topPanel.add(movieDropdown);
+        topPanel.add(new JLabel("Select Showtime:"));
+        topPanel.add(showtimeDropdown);
+        add(topPanel, BorderLayout.NORTH);
 
-        heading.setFont(new Font("Arial", Font.BOLD, 22));
-        add(heading, BorderLayout.NORTH);
+        add(new JScrollPane(seatGridPanel), BorderLayout.CENTER);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(5, 1, 10, 10));
-
-        movieBox = new JComboBox<>(movies);
-
-        showTimeBox = new JComboBox<>();
-
-        seatPanel = new JPanel();
-
-        priceLabel = new JLabel("Select a showtime and seats.");
-
-        JButton bookButton = new JButton("CONFIRM BOOKING");
-
-        mainPanel.add(new JLabel("Select Movie:"));
-        mainPanel.add(movieBox);
-
-        mainPanel.add(new JLabel("Select Showtime:"));
-        mainPanel.add(showTimeBox);
-
-        mainPanel.add(new JLabel("Select Seats:"));
-
-        add(mainPanel, BorderLayout.CENTER);
-
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BorderLayout());
-
-        seatPanel.setLayout(new FlowLayout());
-
-        JScrollPane scrollPane = new JScrollPane(seatPanel);
-
-        bottomPanel.add(scrollPane, BorderLayout.CENTER);
-        bottomPanel.add(priceLabel, BorderLayout.NORTH);
-        bottomPanel.add(bookButton, BorderLayout.SOUTH);
-
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        bookButton.setEnabled(false);
+        bookButton.addActionListener(event -> bookSelectedSeats());
+        bottomPanel.add(statusLabel, BorderLayout.CENTER);
+        bottomPanel.add(bookButton, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        movieBox.addActionListener(e -> loadShowTimes());
-
-        showTimeBox.addActionListener(e -> loadSeats());
-
-        bookButton.addActionListener(e -> confirmBooking());
-
-        loadShowTimes();
-
-        setVisible(true);
+        for (int index = 0; index < ticketingSystem.getMovieCount(); index++) {
+            movieDropdown.addItem(ticketingSystem.getMovieAt(index));
+        }
+        movieDropdown.addActionListener(event -> updateShowtimes());
+        showtimeDropdown.addActionListener(event -> renderSeats());
+        updateShowtimes();
     }
 
-    private void loadShowTimes() {
-
-        showTimeBox.removeAllItems();
-
-        Movie movie = (Movie) movieBox.getSelectedItem();
-
-        if (movie == null) {
-            return;
-        }
-
-        ShowTime[] times = movie.getAvailableShowTimes();
-
-        for (ShowTime time : times) {
-            showTimeBox.addItem(time);
-        }
-
-        loadSeats();
-    }
-
-    private void loadSeats() {
-
-        seatPanel.removeAll();
-
-        ShowTime showTime =
-            (ShowTime) showTimeBox.getSelectedItem();
-
-        if (showTime == null) {
-            return;
-        }
-
-        Seat[] seats = showTime.getAllSeats();
-
-        seatChecks = new JCheckBox[seats.length];
-
-        for (int i = 0; i < seats.length; i++) {
-
-            Seat seat = seats[i];
-
-            seatChecks[i] = new JCheckBox(
-                seat.getSeatNumber()
-            );
-
-            seatChecks[i].setEnabled(!seat.isBooked());
-
-            seatPanel.add(seatChecks[i]);
-        }
-
-        updatePrice();
-
-        seatPanel.revalidate();
-        seatPanel.repaint();
-    }
-
-    private void updatePrice() {
-
-        ShowTime showTime =
-            (ShowTime) showTimeBox.getSelectedItem();
-
-        if (showTime == null || seatChecks == null) {
-            return;
-        }
-
-        int selected = 0;
-
-        for (JCheckBox check : seatChecks) {
-            if (check.isSelected()) {
-                selected++;
+    private void updateShowtimes() {
+        Movie selectedMovie = (Movie) movieDropdown.getSelectedItem();
+        showtimeDropdown.removeAllItems();
+        if (selectedMovie != null) {
+            for (Showtime showTime : selectedMovie.getAvailableShowTimes()) {
+                showtimeDropdown.addItem(showTime);
             }
         }
-
-        int total = selected * showTime.getTicketPrice();
-
-        priceLabel.setText(
-            "Selected Seats: " + selected +
-            " | Total Price: UGX " + total
-        );
+        renderSeats();
     }
 
-    private void confirmBooking() {
+    private void renderSeats() {
+        seatGridPanel.removeAll();
+        selectedSeats.clear();
+        bookButton.setEnabled(false);
 
-        Movie movie = (Movie) movieBox.getSelectedItem();
+        Showtime selectedShowtime = (Showtime) showtimeDropdown.getSelectedItem();
+        if (selectedShowtime != null) {
+            int columns = 4;
+            int rows = (int) Math.ceil((double) selectedShowtime.getSeatCount() / columns);
+            seatGridPanel.setLayout(new GridLayout(rows, columns, 5, 5));
+            seatGridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        ShowTime showTime =
-            (ShowTime) showTimeBox.getSelectedItem();
-
-        if (movie == null || showTime == null) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Please select a movie and showtime."
-            );
-            return;
-        }
-
-        int count = 0;
-
-        for (JCheckBox check : seatChecks) {
-            if (check.isSelected()) {
-                count++;
-            }
-        }
-
-        if (count == 0) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Please select at least one seat."
-            );
-            return;
-        }
-
-        if (bookingCount == bookings.length) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Booking list is full."
-            );
-            return;
-        }
-
-        Seat[] selectedSeats = new Seat[count];
-
-        Seat[] allSeats = showTime.getAllSeats();
-
-        int index = 0;
-
-        for (int i = 0; i < seatChecks.length; i++) {
-
-            if (seatChecks[i].isSelected()) {
-
-                if (allSeats[i].isBooked()) {
-                    JOptionPane.showMessageDialog(
-                        this,
-                        "A selected seat is no longer available."
-                    );
-                    return;
+            for (int index = 0; index < selectedShowtime.getSeatCount(); index++) {
+                Seat seat = selectedShowtime.getSeatAt(index);
+                JToggleButton seatButton = new JToggleButton(seat.getSeatNumber());
+                if (seat.isBooked()) {
+                    seatButton.setEnabled(false);
+                    seatButton.setText(seat.getSeatNumber() + " (X)");
+                    seatButton.setBackground(Color.RED);
+                } else {
+                    seatButton.setBackground(Color.GREEN);
+                    seatButton.addActionListener(event -> {
+                        if (seatButton.isSelected()) {
+                            selectedSeats.add(seat);
+                        } else {
+                            selectedSeats.remove(seat);
+                        }
+                        updateStatus();
+                    });
                 }
-
-                selectedSeats[index] = allSeats[i];
-                index++;
+                seatGridPanel.add(seatButton);
             }
         }
 
-        String bookingNumber = UUID.randomUUID()
-            .toString()
-            .substring(0, 8)
-            .toUpperCase();
-
-        Booking booking = new Booking(
-            bookingNumber,
-            movie,
-            showTime,
-            selectedSeats
-        );
-
-        for (Seat seat : selectedSeats) {
-            seat.book();
-        }
-
-        bookings[bookingCount] = booking;
-        bookingCount++;
-
-        int total = count * showTime.getTicketPrice();
-
-        JOptionPane.showMessageDialog(
-            this,
-            "BOOKING SUCCESSFUL!\n\n" +
-            "Booking Number: " + bookingNumber +
-            "\nMovie: " + movie.getTitle() +
-            "\nShowtime: " + showTime.getDateTime() +
-            "\nSeats Booked: " + count +
-            "\nTotal: UGX " + total
-        );
-
-        loadSeats();
+        seatGridPanel.revalidate();
+        seatGridPanel.repaint();
+        updateStatus();
     }
 
-    public Booking[] getBookings() {
-
-        Booking[] result = new Booking[bookingCount];
-
-        for (int i = 0; i < bookingCount; i++) {
-            result[i] = bookings[i];
+    private void updateStatus() {
+        Showtime selectedShowtime = (Showtime) showtimeDropdown.getSelectedItem();
+        if (selectedShowtime == null) {
+            statusLabel.setText("Please select a movie and showtime to begin.");
+            bookButton.setEnabled(false);
+        } else if (selectedSeats.isEmpty()) {
+            statusLabel.setText("0 seats selected.");
+            bookButton.setEnabled(false);
+        } else {
+            int total = selectedShowtime.getTotalPrice(selectedSeats.size());
+            statusLabel.setText(selectedSeats.size() + " seat(s) selected. Total: Ugx " + total);
+            bookButton.setEnabled(true);
         }
-
-        return result;
     }
 
-    public static void main(String[] args) {
+    private void bookSelectedSeats() {
+        Movie movie = (Movie) movieDropdown.getSelectedItem();
+        Showtime showTime = (Showtime) showtimeDropdown.getSelectedItem();
+        Seat[] seats = selectedSeats.toArray(new Seat[0]);
 
-        SwingUtilities.invokeLater(() -> {
+        try {
+            Booking booking = ticketingSystem.bookSeats(movie, showTime, seats);
+            showBookingSummary(booking);
+            renderSeats();
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Booking Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-            JOptionPane.showMessageDialog(
-                null,
-                "Pass your existing Movie array when opening BookingFrame."
-            );
+    private void showBookingSummary(Booking booking) {
+        StringBuilder seatNumbers = new StringBuilder();
+        for (int index = 0; index < booking.getSeatCount(); index++) {
+            if (index > 0) {
+                seatNumbers.append(", ");
+            }
+            seatNumbers.append(booking.getSeatAt(index).getSeatNumber());
+        }
 
-        });
+        JOptionPane.showMessageDialog(this,
+                "Booking Successful!\n"
+                        + "Reference: " + booking.getBookingNumber() + "\n"
+                        + "Movie: " + booking.getMovie().getTitle() + "\n"
+                        + "Showtime: " + booking.getShowTime().getDateTime() + "\n"
+                        + "Seats: " + seatNumbers + "\n"
+                        + "Total Paid: Ugx " + booking.getTotalPrice(),
+                "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 }

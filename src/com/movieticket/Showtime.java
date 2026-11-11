@@ -1,4 +1,4 @@
-
+package com.movieticket;
 
 /** Represents one screening and the seats available for that screening. */
 public class Showtime {
@@ -34,6 +34,13 @@ public class Showtime {
         return ticketPrice;
     }
 
+    public int getTotalPrice(int seatCount) {
+        if (seatCount < 1) {
+            throw new IllegalArgumentException("Seat count must be at least one.");
+        }
+        return ticketPrice * seatCount;
+    }
+
     public int getSeatCount() {
         return seats.length;
     }
@@ -44,7 +51,7 @@ public class Showtime {
         }
         return seats[index];
     }
-    
+
     public Seat[] getAllSeats() {
         return seats;
     }

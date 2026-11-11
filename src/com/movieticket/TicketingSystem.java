@@ -48,7 +48,7 @@ public class TicketingSystem {
         return bookings[index];
     }
 
-    public Booking bookSeats(Movie movie, ShowTime showTime, Seat[] selectedSeats) {
+    public Booking bookSeats(Movie movie, Showtime showTime, Seat[] selectedSeats) {
         if (!containsMovie(movie) || showTime == null || !containsShowTime(movie, showTime)) {
             throw new IllegalArgumentException("Select a movie and one of its showtimes.");
         }
@@ -90,8 +90,8 @@ public class TicketingSystem {
         return false;
     }
 
-    private boolean containsShowTime(Movie movie, ShowTime showTime) {
-        for (ShowTime movieShowTime : movie.getAvailableShowTimes()) {
+    private boolean containsShowTime(Movie movie, Showtime showTime) {
+        for (Showtime movieShowTime : movie.getAvailableShowTimes()) {
             if (movieShowTime == showTime) {
                 return true;
             }
@@ -99,7 +99,7 @@ public class TicketingSystem {
         return false;
     }
 
-    private boolean containsSeat(ShowTime showTime, Seat seat) {
+    private boolean containsSeat(Showtime showTime, Seat seat) {
         for (int index = 0; index < showTime.getSeatCount(); index++) {
             if (showTime.getSeatAt(index) == seat) {
                 return true;

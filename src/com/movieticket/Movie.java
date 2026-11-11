@@ -1,5 +1,7 @@
 
 
+package com.movieticket;
+
 import java.util.Arrays;
 
 /** Represents a movie and its scheduled showtimes. */
@@ -7,7 +9,7 @@ public class Movie {
     private final String title;
     private final String genre;
     private final int durationMinutes;
-    private final ShowTime[] showTimes;
+    private final Showtime[] showTimes;
     private int showTimeCount;
     public Movie(String title, String genre, int durationMinutes, int maximumShowTimes) {
         if (title == null || title.isBlank()) {
@@ -26,7 +28,7 @@ public class Movie {
         this.title = title;
         this.genre = genre;
         this.durationMinutes = durationMinutes;
-        this.showTimes = new ShowTime[maximumShowTimes];
+        this.showTimes = new Showtime[maximumShowTimes];
         this.showTimeCount = 0;
     }
     public String getTitle() {
@@ -45,19 +47,19 @@ public class Movie {
         return showTimeCount;
     }
 
-    public ShowTime getShowTimeAt(int index) {
+    public Showtime getShowTimeAt(int index) {
         if (index < 0 || index >= showTimeCount) {
             throw new IndexOutOfBoundsException("Showtime index is outside this movie's schedule.");
         }
         return showTimes[index];
     }
     
-    public ShowTime[] getAvailableShowTimes() {
+    public Showtime[] getAvailableShowTimes() {
         return Arrays.copyOf(showTimes, showTimeCount);
     }
 
    
-    public boolean addShowTime(ShowTime showTime) {
+    public boolean addShowTime(Showtime showTime) {
         if (showTime == null || showTimeCount == showTimes.length) {
             return false;
         }
@@ -71,4 +73,3 @@ public class Movie {
         return title + " (" + genre + ", " + durationMinutes + " min)";
     }
 }
-

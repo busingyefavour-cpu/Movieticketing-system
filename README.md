@@ -23,13 +23,13 @@ Seat.java
 Achieves: Represents one seat in a screening.
 How: Stores a seat number and whether it is booked. Its book() method changes an available seat to booked, and isBooked() lets other classes check its status.
 
-ShowTime.java
+Showtime.java
 Achieves: Represents one movie screening.
 How: Stores the screening date/time and ticket price. When created, it makes a fixed array of Seat objects. It also calculates the price for a number of seats and counts available seats.
 
 Movie.java
 Achieves: Represents a movie and its schedule.
-How: Stores the title, genre, duration, and a fixed-capacity array of ShowTime objects. addShowTime() adds screenings; getter methods provide the movie details and scheduled showtimes.
+How: Stores the title, genre, duration, and a fixed-capacity array of Showtime objects. addShowTime() adds screenings; getter methods provide the movie details and scheduled showtimes.
 
 Booking.java
 Achieves: Records the details of one successful booking.
@@ -58,11 +58,11 @@ The constructor rejects a blank seat number.
 getSeatNumber() and isBooked() let other classes read the seat’s details.
 book() changes the status to booked and returns true. If it was already booked, it returns false without changing it.
 toString() produces a readable label, such as S1 (Available).
-This file provides the basic seat state that ShowTime, BookingFrame, and TicketingSystem use.
+This file provides the basic seat state that Showtime, BookingFrame, and TicketingSystem use.
 
 
-2. ShowTime.java — one screening
-A ShowTime represents a scheduled showing of a movie.
+2. Showtime.java — one screening
+A Showtime represents a scheduled showing of a movie.
 
 dateTime stores when it starts.
 ticketPrice stores the cost of one ticket.
@@ -73,7 +73,7 @@ getSeatCount() and getSeatAt(index) provide access to the seats.
 getAllSeats() returns a copy of the seat array, rather than exposing the original array.
 getAvailableSeatCount() loops through the seats and counts those not yet booked.
 toString() formats the screening time and price for display.
-Each ShowTime owns its own seat objects, so booking a seat for one screening does not book the same-numbered seat at another screening.
+Each Showtime owns its own seat objects, so booking a seat for one screening does not book the same-numbered seat at another screening.
 
 
 3. Movie.java — a movie and its schedule
@@ -92,7 +92,7 @@ The movie contains showtimes, and each showtime contains seats.
 4. Booking.java — one confirmed reservation
 A Booking records a successful reservation.
 
-It stores a reference number, the Movie, the ShowTime, and the selected Seat objects.
+It stores a reference number, the Movie, the Showtime, and the selected Seat objects.
 Its constructor checks that the reference is not blank, the movie and showtime exist, and at least one non-null seat was selected.
 It copies the selected seats into its own array so the caller cannot replace entries in the booking by changing its original array.
 It calculates and stores totalPrice using the showtime’s ticket price and the number of seats.
@@ -140,15 +140,15 @@ The frame handles display and interaction. It asks TicketingSystem to enforce bo
 Main assembles the starting data and launches the interface.
 
 BOOKING_CAPACITY sets the maximum number of bookings kept during this run.
-createCatalogue() creates sample Movie objects, adds ShowTime objects to them, and returns the movie array. Each showtime creates its own seats.
+createCatalogue() creates sample Movie objects, adds Showtime objects to them, and returns the movie array. Each showtime creates its own seats.
 main() schedules startup with SwingUtilities.invokeLater(...), which runs Swing UI setup on its event-dispatch thread. Inside that task it creates the TicketingSystem and displays a BookingFrame.
 
 
 
 How the files connect when the app runs
 Main creates Movie objects
-→ each Movie gets ShowTime objects
-→ each ShowTime creates Seat objects
+→ each Movie gets Showtime objects
+→ each Showtime creates Seat objects
 
 Main passes the catalogue to TicketingSystem
 → TicketingSystem is passed to BookingFrame
@@ -161,7 +161,7 @@ User chooses a movie, showtime, and seats in BookingFrame
 
 BookingFrame displays the confirmation
 
-In short, the data classes (Seat, ShowTime, Movie, Booking) describe the booking information; TicketingSystem enforces the rules; BookingFrame handles user interaction; and Main assembles and launches everything.
+In short, the data classes (Seat, Showtime, Movie, Booking) describe the booking information; TicketingSystem enforces the rules; BookingFrame handles user interaction; and Main assembles and launches everything.
 Main
   → creates movies, showtimes, and seats
   → creates TicketingSystem
